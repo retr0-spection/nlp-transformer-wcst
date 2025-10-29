@@ -55,7 +55,7 @@ def prepare_wcst_datasets(
             all_tgt.append(tgt)
 
             # Optional: simulate context switches
-            if (i + 1) % 100 == 0:
+            if (i + 1) % 30 == 0:
                 wcst.context_switch()
 
         all_src = np.vstack(all_src)

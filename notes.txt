@@ -1,0 +1,60 @@
+v0
+This model had config
+
+config = {
+    "src_vocab_size": 70,  # 0–69 as per WCST
+    "tgt_vocab_size": 70,
+    "d_model": 256,
+    "num_heads": 8,
+    "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.2,
+    "max_seq_length": 20,
+    "batch_size": 64,
+    "epochs": 50,
+    "lr": 1e-4,
+    "save_dir": "./checkpoints",
+    "data_path": "./wcst_data",
+    "resume": True,  # resume if checkpoint exists
+    "seed": 42,
+    "device": device
+}
+
+Model seems to be overfitting as training loss keeps coming down but validation loss starts to rise
+wandb: Run summary:
+wandb:          epoch 50
+wandb:    test_acc_C1 0.14847
+wandb:    test_acc_C2 0.50135
+wandb:    test_acc_C3 0.37464
+wandb:    test_acc_C4 0
+wandb:  test_accuracy 0.62633
+wandb:      test_loss 0.69326
+wandb: train_accuracy 0.74777
+wandb:     train_loss 0.5661
+wandb:     val_acc_C1 0.19654
+
+This inspires our second version to be smaller in params and the dataset is configured with more frequent context changes
+
+
+v1
+config = {
+    "src_vocab_size": 70,  # 0–69 as per WCST
+    "tgt_vocab_size": 70,
+    "d_model": 128,
+    "num_heads": 4,
+    "num_layers": 3,
+    # "d_model": 256,
+    # "num_heads": 8,
+    # "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.2,
+    "max_seq_length": 20,
+    "batch_size": 64,
+    "epochs": 50,
+    "lr": 1e-4,
+    "save_dir": "./checkpoints",
+    "data_path": "./wcst_data",
+    "resume": True,  # resume if checkpoint exists
+    "seed": 42,
+    "device": device
+}

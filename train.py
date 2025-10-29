@@ -19,23 +19,35 @@ from transformer import Transformer  # must output attention weights when return
 # =====================================
 #
 token_map = build_wcst_token_map()
+
+# Define the device
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
 config = {
     "src_vocab_size": 70,  # 0–69 as per WCST
     "tgt_vocab_size": 70,
-    "d_model": 256,
-    "num_heads": 8,
-    "num_layers": 4,
-    "d_ff": 1024,
-    "dropout": 0.1,
+    "d_model": 128,
+    "num_heads": 4,
+    "num_layers": 3,
+    # "d_model": 256,
+    # "num_heads": 8,
+    # "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.2,
     "max_seq_length": 20,
     "batch_size": 64,
-    "epochs": 1500,
+    "epochs": 50,
     "lr": 1e-4,
     "save_dir": "./checkpoints",
     "data_path": "./wcst_data",
     "resume": True,  # resume if checkpoint exists
     "seed": 42,
-    "device": "cuda" if torch.cuda.is_available() else "cpu"
+    "device": device
 }
 
 
@@ -55,7 +67,7 @@ set_seed(config["seed"])
 # =====================================
 # 3️⃣ Initialize W&B
 # =====================================
-wandb.init(project="wcst-transformer", id="wcst-transformer", config=config)
+wandb.init(project="wcst-transformer", id="wcst-transformer-smaller-model", config=config)
 wandb.run.name = f"wcst_transformer_seed{config['seed']}"
 
 
@@ -66,7 +78,6 @@ train_loader, val_loader, test_loader = prepare_wcst_datasets(
     batch_size=config["batch_size"],
     num_batches=1000,
     save_path=config["data_path"],
-    regenerate=False
 )
 
 
@@ -86,6 +97,7 @@ model = Transformer(
 
 criterion = nn.CrossEntropyLoss(ignore_index=0)
 optimizer = optim.Adam(model.parameters(), lr=config["lr"], betas=(0.9, 0.98), eps=1e-9)
+# optimizer = optim.Adam(model.parameters(), lr=config["lr"], betas=(0.9, 0.98), eps=1e-9)
 
 
 # =====================================
@@ -129,7 +141,7 @@ def per_category_accuracy(preds, targets):
     return accs
 
 
-def visualize_attention(all_attn_weights, epoch, src_sample, tgt_sample, token_map, max_heads=2):
+def visualize_attention(all_attn_weights, epoch, src_sample, tgt_sample, token_map, max_heads=config['num_heads']):
     """
     Visualize both self- and cross-attention from the last decoder layer,
     with readable WCST token labels.
