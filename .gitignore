@@ -1,0 +1,4 @@
+venv/
+wcst_data/
+checkpoints/
+wandb/
